@@ -49,6 +49,21 @@ impl Token {
         }
     }
 
+    pub fn to_tokens(c) -> Token {
+        match c {
+            "(" => LPAREN,
+            ")" => RPAREN,
+            "+"  => ADD,
+            "-" => SUB,
+            "*" => MUL,
+            "/" => DIV,
+            "^" => CARET,
+            "=" => EQUALS,
+            "E" => EOF,
+            x => NUMBER( x.parse::<f64>().unwrap()  ),
+        }
+    }
+
 
 }
 
@@ -86,7 +101,7 @@ fn build_tree(input: &str) -> (f64, String) {
     let xx: Token = EQUALS;
     let mut x = Node { val: &xx, l: None, r: None };
     x.insert(&xx);
-    x.insert(&xx);
+    x.insert(input);
     x.insert(&xx);
     println!("{:?}",x);
     assert!(x == Node {
@@ -109,6 +124,7 @@ fn build_tree(input: &str) -> (f64, String) {
 
     });
     (3.0,String::from("hello baby"))
+
 }
 
 pub fn main() {
