@@ -6,6 +6,9 @@ use std::io;
 
 use self::Token::*;
 use std::f64;
+use itertools::*;
+use std::str;
+
 
 #[derive(Debug,PartialEq, Clone,PartialOrd)]
 pub enum Token {
@@ -49,23 +52,22 @@ impl Token {
         }
     }
 
-    pub fn to_tokens(c) -> Token {
-        match c {
-            "(" => LPAREN,
-            ")" => RPAREN,
-            "+"  => ADD,
-            "-" => SUB,
-            "*" => MUL,
-            "/" => DIV,
-            "^" => CARET,
-            "=" => EQUALS,
-            "E" => EOF,
-            x => NUMBER( x.parse::<f64>().unwrap()  ),
-        }
-    }
-
-
 }
+
+// pub fn to_tokens(c) -> Token {
+//     match c {
+//         "(" => LPAREN,
+//         ")" => RPAREN,
+//         "+"  => ADD,
+//         "-" => SUB,
+//         "*" => MUL,
+//         "/" => DIV,
+//         "^" => CARET,
+//         "=" => EQUALS,
+//         "E" => EOF,
+//         x => NUMBER( x.parse::<f64>().unwrap()  ),
+//     }
+// }
 
 pub fn is_eof(t: &Token) -> bool{
     match t {
@@ -73,6 +75,54 @@ pub fn is_eof(t: &Token) -> bool{
         _ => false
     }
 }
+
+
+pub fn splitOnTokens(equation: &str) {
+    // let splitted: Vec<&str> = equation.split("").collect();
+    // let chars  = equation.chars();
+    // let r = chars.group_by( |x| x.is_digit(10) )
+    //     .into_iter()
+    //     .map( |y| y.1.cloned().collect() );
+    //     .collect::<Vec< Vec<&str>>();
+    // // let rr: Vec<Vec<&str>>  = r.map(|y| y.1).collect();
+    // println!("{:?}", r);
+
+    let data = vec!["+", "2", "3", "-", "1"];
+
+    let groups = data.iter()
+        .group_by(|elt| elt.chars() .next().unwrap().is_digit(10) )
+        .into_iter()
+
+        
+        .map(|(_, group)|  group . cloned() . collect() )
+        // .map( join("") )
+        // .collect::<Vec<&str>>();
+        .collect::<Vec<Vec<&str>>>();
+    println!("{:?}", groups);
+}
+
+// pub fn listOfListToList(listOfList: Vec<Vec<&str>> ) -> Vec<&str> {
+//     let mut v = Vec::new();
+//     let list = for i in listOfList {
+//         v.push_str(i);
+//     };
+//     return list
+
+// }
+
+// pub fn splitOnTokens(equation: &str, previousDigits: &str) -> (equation, Vec<&str>, &str) {
+//     equation.chars()
+//     // if (equation.len() > 1) {
+//     //     let head: <&str> = equation.first();
+//     //     let tail: &str = &v[1..];
+//     //     if previousDigits.len() > 0 && head.isDigit() {
+//     //         return (tail, previousDigits.push(head)
+//     //     }
+//     // } else if ( equation.len() == 1 ) {
+
+//     // }
+//     // s += match   
+// } 
 
 
 #[derive(PartialEq,Debug)]
@@ -96,39 +146,42 @@ impl<'a> Node<'a> {
 }
 
 
-// comment for commit
-fn build_tree(input: &str) -> (f64, String) {
-    let xx: Token = EQUALS;
-    let mut x = Node { val: &xx, l: None, r: None };
-    x.insert(&xx);
-    x.insert(input);
-    x.insert(&xx);
-    println!("{:?}",x);
-    assert!(x == Node {
-        val: &xx,
-        l: None,
-        r: Some(Box::new(Node {
-            val: &xx,
-            l: None,
-            r: Some(Box::new(Node {
-                val: &xx,
-                l: None,
-                r: Some(Box::new(Node {
-                    val: &xx,
-                    l: None,
-                    r: None,
-                })),
-            })),
-        })),
+// // comment for commit
+// fn build_tree(input: &str) -> (f64, String) {
+//     let xx: Token = EQUALS;
+//     let mut x = Node { val: &xx, l: None, r: None };
+//     x.insert(&xx);
+//     // x.insert(input);
+//     x.insert(&xx);
+//     println!("{:?}",x);
+//     assert!(x == Node {
+//         val: &xx,
+//         l: None,
+//         r: Some(Box::new(Node {
+//             val: &xx,
+//             l: None,
+//             r: Some(Box::new(Node {
+//                 val: &xx,
+//                 l: None,
+//                 r: Some(Box::new(Node {
+//                     val: &xx,
+//                     l: None,
+//                     r: None,
+//                 })),
+//             })),
+//         })),
 
 
-    });
-    (3.0,String::from("hello baby"))
+//     });
+//     (3.0,String::from("hello baby"))
 
-}
+// }
 
 pub fn main() {
-    build_tree("2-1");
+    splitOnTokens("2-1");
+    // let q = splitOnTokens("2-1");
+    // println!("{:?}",q);
+    // build_tree("2-1");
 //     use std::f64;
 //     let mut tree = Hashmap::new()
 
