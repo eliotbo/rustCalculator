@@ -27,7 +27,7 @@ impl Token {
             ADD | SUB => Some((10, 0)),
             MUL | DIV => Some((20, 0)),
             CARET => Some((30, 1)),
-            _ => { None}
+            _ => { None }
         }
     }
 
@@ -77,6 +77,7 @@ impl<'a> Node<'a> {
 }
 
 
+// comment for commit
 fn build_tree(input: &str) -> <f64, String> {
     let xx: Token = EQUALS;
     let mut x = Node { val: &xx, l: None, r: None };
