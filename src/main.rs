@@ -1,5 +1,7 @@
+#[allow(warnings)]
+
 use std::io;
-use std::io::prelude::v1::*;
+// use std::io::prelude::v1::*;
 // use std::fmt::Display;
 
 use self::Token::*;
@@ -46,6 +48,8 @@ impl Token {
             SYMBOL(_) => 'S',
         }
     }
+
+
 }
 
 pub fn is_eof(t: &Token) -> bool{
@@ -78,7 +82,7 @@ impl<'a> Node<'a> {
 
 
 // comment for commit
-fn build_tree(input: &str) -> <f64, String> {
+fn build_tree(input: &str) -> (f64, String) {
     let xx: Token = EQUALS;
     let mut x = Node { val: &xx, l: None, r: None };
     x.insert(&xx);
@@ -104,33 +108,36 @@ fn build_tree(input: &str) -> <f64, String> {
 
 
     });
-    (3.0,String::from("hello baby"));
+    (3.0,String::from("hello baby"))
 }
 
 pub fn main() {
-    use std::f64;
-    let mut tree = Hashmap::new()
+    build_tree("2-1");
+//     use std::f64;
+//     let mut tree = Hashmap::new()
 
-    let stdin = io::stdin();
-
-
-   loop {
-       print!(">> ");
-       io::stdout().flush().ok();
-
-       et mut input = String::new();
-
-       match stdin.read_line(&mut input){
-           Ok(_) =>  {
-               if input.len() == 0 {
-                   println!("");
-                   return;
-               }
-
-               let expression_text = input.trim_right();
+//     let stdin = io::stdin();
 
 
-           }
-       }
+//    loop {
+//        print!(">> ");
+//        io::stdout().flush().ok();
+//        io::Write::flush().ok();
+
+//        et mut input = String::new();
+
+//        match stdin.read_line(&mut input: &str){
+//            Ok(_) =>  {
+//                if input.len() == 0 {
+//                    println!("");
+//                    return;
+//                }
+//             err => {}
+
+//             //    let expression_text = input.trim_right();
+
+
+//            }
+//        }
 
 }
