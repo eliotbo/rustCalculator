@@ -32,6 +32,7 @@ impl Token {
             ADD | SUB => Some((10, 0)),
             MUL | DIV => Some((20, 0)),
             CARET => Some((30, 1)),
+            NUMBER(_) => Some((40,0)),
             _ => { None }
         }
     }
@@ -69,6 +70,8 @@ pub fn to_tokens(c: &str) -> Token {
     }
 }
 
+
+
 pub fn is_eof(t: &Token) -> bool{
     match t {
         &EOF => true,
@@ -89,13 +92,14 @@ pub fn splitOnTokens(equation: Vec<&str>) -> Vec<String> {
 
 #[derive(PartialEq,Debug)]
 struct Node<'a> {
-    val: &'a Token,
+    val:  (&'a Token, &'a usize) ,
     l: Option<Box<Node<'a>>>,
     r: Option<Box<Node<'a>>>,
 }
 impl<'a> Node<'a> {
-    pub fn insert(&mut self, new_val: &'a Token) {
-        let target_node = if new_val < self.val { &mut self.l } else { &mut self.r };
+    pub fn insert(&mut self, new_val:  (&'a Token, &'a usize) ) {
+
+        let target_node = if new_val.1 < self.val.1 { &mut self.l } else { &mut self.r };
         match target_node {
             &mut Some(ref mut subnode) => subnode.insert(new_val),
             &mut None => {
@@ -104,6 +108,16 @@ impl<'a> Node<'a> {
                 *target_node = boxed_node;
             }
         }
+
+        // let target_node = if new_val.1 < self.val.1 { &mut self.l } else { &mut self.r };
+        // match target_node {
+        //     &mut Some(ref mut subnode) => subnode.insert(new_val),
+        //     &mut None => {
+        //         let new_node = Node { val: new_val, l: None, r: None };
+        //         let boxed_node = Some(Box::new(new_node));
+        //         *target_node = boxed_node;
+        //     }
+        // }
     }
 }
 
@@ -140,21 +154,70 @@ impl<'a> Node<'a> {
 
 // }
 
+// pub fn buildTree(tokenList, tree: Node, priority: usize) {
+//     for i in &w {
+//         if let Some(a,b) = i.info() {
+//             if a == priority {
+//                 tree.insert(i);
+//             }
+//         } 
+//     }
+// }
+
 pub fn main() {
-    let data = vec!["+", "2", "3", "-", "1"];
-    let mut v = String::from("23-1/564+43*67+23-1+6");
+    // let data = vec!["+", "2", "3", "-", "1"];
+    let mut v = String::from("23-43*67+2");
     let v2: Vec<&str> = v.split(""). collect::<Vec<&str>>();
     let  v3 = &v2[1..(v2.len()-1)];
     println!("{:?}",v3);
     let qq = splitOnTokens(v3.to_vec());
     let mut w :  Vec<Token> =  qq.iter().map(|s| to_tokens(s)).collect();
-    println!("{:?}",w);
-    let mut  tree:   Node = Node {val: &Token::EQUALS, l: None, r: None};
-    tree.insert(&ADD);
-    println!("{:?}",tree);
-    for x in &w {
-        tree.insert(x);
+
+    let mut j: Vec<usize> = (1..w.len()).collect() ;
+    println!("len is {:?}",j);
+    let mut tokenList: Vec<(&Token, &usize)> = w.iter().zip( j.iter() ).collect();
+    println!("tokenlist: {:?}",tokenList);
+    let mut  tree:   Node = Node {val: (&Token::EQUALS, &1), l: None, r: None};
+
+    // tree.insert(&ADD);
+
+    for i in &tokenList {
+        if let Some((a,b)) = i.0.info() {
+            if a == 10 {
+                tree.insert(*i);
+            }
+        } 
     }
+
+    for i in &tokenList {
+        if let Some((a,b)) = i.0.info() {
+            if a == 20 {
+                tree.insert(*i);
+            }
+        } 
+    }
+
+    for i in &tokenList {
+        if let Some((a,b)) = i.0.info() {
+            if a == 30 {
+                tree.insert(*i);
+            }
+        } 
+    }
+
+    for i in &tokenList {
+        if let Some((a,b)) = i.0.info() {
+            if a == 40 {
+                tree.insert(*i);
+            }
+        } 
+    }
+
     println!("{:?}",tree);
+
+    // for x in &w {
+    //     tree.insert(x);
+    // }
+    // println!("{:?}",tree);
     // println!("{:?}",w);
 }
