@@ -8,7 +8,7 @@ use self::Token::*;
 use std::f64;
 use itertools::*;
 use std::str;
-
+use Token::*;
 
 #[derive(Debug,PartialEq, Clone,PartialOrd)]
 pub enum Token {
@@ -54,20 +54,20 @@ impl Token {
 
 }
 
-// pub fn to_tokens(c) -> Token {
-//     match c {
-//         "(" => LPAREN,
-//         ")" => RPAREN,
-//         "+"  => ADD,
-//         "-" => SUB,
-//         "*" => MUL,
-//         "/" => DIV,
-//         "^" => CARET,
-//         "=" => EQUALS,
-//         "E" => EOF,
-//         x => NUMBER( x.parse::<f64>().unwrap()  ),
-//     }
-// }
+pub fn to_tokens(c: &str) -> Token {
+    match c {
+        "(" => LPAREN,
+        ")" => RPAREN,
+        "+"  => ADD,
+        "-" => SUB,
+        "*" => MUL,
+        "/" => DIV,
+        "^" => CARET,
+        "=" => EQUALS,
+        "E" => EOF,
+        x => NUMBER( x.parse::<f64>().unwrap()  ),
+    }
+}
 
 pub fn is_eof(t: &Token) -> bool{
     match t {
@@ -76,53 +76,15 @@ pub fn is_eof(t: &Token) -> bool{
     }
 }
 
-
-pub fn splitOnTokens(equation: &str) {
-    // let splitted: Vec<&str> = equation.split("").collect();
-    // let chars  = equation.chars();
-    // let r = chars.group_by( |x| x.is_digit(10) )
-    //     .into_iter()
-    //     .map( |y| y.1.cloned().collect() );
-    //     .collect::<Vec< Vec<&str>>();
-    // // let rr: Vec<Vec<&str>>  = r.map(|y| y.1).collect();
-    // println!("{:?}", r);
-
-    let data = vec!["+", "2", "3", "-", "1"];
-
-    let groups = data.iter()
+pub fn splitOnTokens(equation: Vec<&str>) -> Vec<String> {
+    let groups: Vec<String> = equation.iter()
         .group_by(|elt| elt.chars() .next().unwrap().is_digit(10) )
         .into_iter()
+        .map(|(_, mut group)|  group . join("")  )
+        .collect();
+    return groups
 
-        
-        .map(|(_, group)|  group . cloned() . collect() )
-        // .map( join("") )
-        // .collect::<Vec<&str>>();
-        .collect::<Vec<Vec<&str>>>();
-    println!("{:?}", groups);
 }
-
-// pub fn listOfListToList(listOfList: Vec<Vec<&str>> ) -> Vec<&str> {
-//     let mut v = Vec::new();
-//     let list = for i in listOfList {
-//         v.push_str(i);
-//     };
-//     return list
-
-// }
-
-// pub fn splitOnTokens(equation: &str, previousDigits: &str) -> (equation, Vec<&str>, &str) {
-//     equation.chars()
-//     // if (equation.len() > 1) {
-//     //     let head: <&str> = equation.first();
-//     //     let tail: &str = &v[1..];
-//     //     if previousDigits.len() > 0 && head.isDigit() {
-//     //         return (tail, previousDigits.push(head)
-//     //     }
-//     // } else if ( equation.len() == 1 ) {
-
-//     // }
-//     // s += match   
-// } 
 
 
 #[derive(PartialEq,Debug)]
@@ -144,6 +106,7 @@ impl<'a> Node<'a> {
         }
     }
 }
+
 
 
 // // comment for commit
@@ -178,35 +141,20 @@ impl<'a> Node<'a> {
 // }
 
 pub fn main() {
-    splitOnTokens("2-1");
-    // let q = splitOnTokens("2-1");
-    // println!("{:?}",q);
-    // build_tree("2-1");
-//     use std::f64;
-//     let mut tree = Hashmap::new()
-
-//     let stdin = io::stdin();
-
-
-//    loop {
-//        print!(">> ");
-//        io::stdout().flush().ok();
-//        io::Write::flush().ok();
-
-//        et mut input = String::new();
-
-//        match stdin.read_line(&mut input: &str){
-//            Ok(_) =>  {
-//                if input.len() == 0 {
-//                    println!("");
-//                    return;
-//                }
-//             err => {}
-
-//             //    let expression_text = input.trim_right();
-
-
-//            }
-//        }
-
+    let data = vec!["+", "2", "3", "-", "1"];
+    let mut v = String::from("23-1/564+43*67+23-1+6");
+    let v2: Vec<&str> = v.split(""). collect::<Vec<&str>>();
+    let  v3 = &v2[1..(v2.len()-1)];
+    println!("{:?}",v3);
+    let qq = splitOnTokens(v3.to_vec());
+    let mut w :  Vec<Token> =  qq.iter().map(|s| to_tokens(s)).collect();
+    println!("{:?}",w);
+    let mut  tree:   Node = Node {val: &Token::EQUALS, l: None, r: None};
+    tree.insert(&ADD);
+    println!("{:?}",tree);
+    for x in &w {
+        tree.insert(x);
+    }
+    println!("{:?}",tree);
+    // println!("{:?}",w);
 }
