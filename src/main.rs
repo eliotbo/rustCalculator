@@ -1,4 +1,5 @@
-#[allow(warnings)]
+
+// #![feature(box_syntax, box_patterns)]
 
 use std::io;
 // use std::io::prelude::v1::*;
@@ -97,6 +98,21 @@ struct Node<'a> {
     r: Option<Box<Node<'a>>>,
 }
 impl<'a> Node<'a> {
+
+    // pub fn deleteRoot(&mut self) -> Node  {
+    //     self=  &mut self.r ;
+    //     match target_node {
+            
+    //         &mut Some(ref mut Node {val: v, l:l, r:r} ) => { 
+    //             *self = Some{ subnode }; 
+    //         },
+    //         _ => { self; },
+    //     }
+
+     
+    // } //expected `()`, found `&mut Node<'a>`
+
+
     pub fn insert(&mut self, new_val:  (&'a Token, &'a usize) ) {
 
         let target_node = if new_val.1 < self.val.1 { &mut self.l } else { &mut self.r };
@@ -108,18 +124,79 @@ impl<'a> Node<'a> {
                 *target_node = boxed_node;
             }
         }
+    }
 
-        // let target_node = if new_val.1 < self.val.1 { &mut self.l } else { &mut self.r };
-        // match target_node {
-        //     &mut Some(ref mut subnode) => subnode.insert(new_val),
-        //     &mut None => {
-        //         let new_node = Node { val: new_val, l: None, r: None };
-        //         let boxed_node = Some(Box::new(new_node));
-        //         *target_node = boxed_node;
-        //     }
-        // }
+    pub fn eval(&self) -> f64 {
+        println!("{:?}",self);
+
+
+        match (self.val, self.l.as_ref(), self.r.as_ref()) {
+            ( (op,_) 
+            , Some( box_n1 )
+            , Some( box_n2 ) ) => {
+                match ( box_n1.as_ref(), box_n2.as_ref() ) {
+
+                    ( Node {val: (NUMBER(n1),_), l: None, r:None}, Node {val: (NUMBER(n2),_), l: None, r:None} )   => {
+                        let result = match op {
+                            ADD =>  { (n1 + n2) }
+                            SUB =>  { (n1 - n2) }
+                            MUL =>  { (n1 * n2) }
+                            DIV =>  { (n1 / n2) }
+                            CARET => { (n1.powf(*n2)) }
+                            _ => { 0.0 }
+                        };
+                        return result
+                    }
+
+                    ( Node {val: (NUMBER(n1),_), l: None, r:None},  r )   => {
+                        let temp = r.eval();
+                        let result = match op {
+                            ADD =>  { n1 + temp }
+                            SUB =>  { n1 - temp }
+                            MUL =>  { n1 * temp }
+                            DIV =>  { n1 / temp }
+                            CARET => {  n1.powf(temp)  }
+                            _ => { 0.0 }
+                        };
+                        return result
+                    }
+
+                    ( l, Node {val: (NUMBER(n2),_), l: None, r:None} )   => {
+                        let r = match op {
+                            ADD =>  { (l.eval() + n2) }
+                            SUB =>  { (l.eval() - n2) }
+                            MUL =>  { (l.eval() * n2) }
+                            DIV =>  { (l.eval() / n2) }
+                            CARET => { (l.eval().powf(*n2)) }
+                            _ => { 0.0 }
+                        };
+                        return r
+                    }
+
+                    (  l, r )   => {
+                        let r = match op {
+                            ADD =>  {  l.eval() + r.eval()  }
+                            SUB =>  {  l.eval() - r.eval()  }
+                            MUL =>  { l.eval() * r.eval()  }
+                            DIV =>  { l.eval() / r.eval()  }
+                            CARET => { l.eval().powf( r.eval() )  }
+                            _ => { 0.0 }
+                        };
+                        return r
+                    }
+
+                    _ => { 0.0 }
+                }
+            }
+            _ => { 0.0 }
+                
+            
+        }
     }
 }
+      
+
+
 
 
 
@@ -166,18 +243,18 @@ impl<'a> Node<'a> {
 
 pub fn main() {
     // let data = vec!["+", "2", "3", "-", "1"];
-    let mut v = String::from("23-43*67+2");
+    let mut v = String::from("3^3+3/3");
     let v2: Vec<&str> = v.split(""). collect::<Vec<&str>>();
     let  v3 = &v2[1..(v2.len()-1)];
     println!("{:?}",v3);
     let qq = splitOnTokens(v3.to_vec());
-    let mut w :  Vec<Token> =  qq.iter().map(|s| to_tokens(s)).collect();
+    let  w :  Vec<Token> =  qq.iter().map(|s| to_tokens(s)).collect();
 
-    let mut j: Vec<usize> = (1..w.len()).collect() ;
+    let  j: Vec<usize> = (1..w.len()+1).collect() ;
     println!("len is {:?}",j);
-    let mut tokenList: Vec<(&Token, &usize)> = w.iter().zip( j.iter() ).collect();
+    let  tokenList: Vec<(&Token, &usize)> = w.iter().zip( j.iter() ).collect();
     println!("tokenlist: {:?}",tokenList);
-    let mut  tree:   Node = Node {val: (&Token::EQUALS, &1), l: None, r: None};
+    let mut  tree: Node = Node {val: (&Token::EQUALS, &1), l: None, r: None} ;
 
     // tree.insert(&ADD);
 
@@ -213,11 +290,7 @@ pub fn main() {
         } 
     }
 
-    println!("{:?}",tree);
+    println!("{:?}",tree.r.unwrap().as_ref().eval() );
 
-    // for x in &w {
-    //     tree.insert(x);
-    // }
-    // println!("{:?}",tree);
-    // println!("{:?}",w);
+
 }
