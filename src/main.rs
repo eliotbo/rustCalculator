@@ -454,7 +454,7 @@ fn main() {
         // window = Button::draw_text(&mut buttons[0], window);
         // window = Button::draw_text(&mut button_digit, &mut window);
         Button::draw_text(&mut button_digit, &mut window);
-        // window = TextField::print_text( & equation_field, window);
+        TextField::print_text( & equation_field, &mut window);
 
         for mut event in window.events().iter() {
             match event.value {
