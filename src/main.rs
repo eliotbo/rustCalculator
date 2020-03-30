@@ -285,7 +285,7 @@ pub struct Button {
 } 
 
 impl Button {
-    pub fn new(trans_rect_in_pixels: (f64, f64) , rec_size_in_pixels: (f64, f64), mut window: Window ) -> (Button, Window) {
+    pub fn new(trans_rect_in_pixels: (f64, f64) , rec_size_in_pixels: (f64, f64), window: &mut Window ) -> Button {
         let screen_width = (window.width() as f64  ) ;
         let screen_height = (window.height() as f64 ) ;
         let rec_size =  ( rec_size_in_pixels.0 as f64 / screen_width
@@ -332,7 +332,7 @@ impl Button {
                                             (   trans_rect_in_pixels.0 as f32, 
                                                 trans_rect_in_pixels.1 as f32   ));
         button.set_color2(color);
-        return (button, window)
+        return button
     }
 
 
@@ -340,7 +340,7 @@ impl Button {
         self.rect.set_color( color.x, color.y, color.z);//Point3::new(0.15, 0.3, 0.05);
     }
 
-    pub fn draw_text(&mut self, mut window: Window) -> Window {
+    pub fn draw_text(&mut self, window: &mut Window) { //-> Window {
         let font = Font::default();
         window.draw_text(
             "5",
@@ -349,7 +349,7 @@ impl Button {
             &font,
             &Point3::new(1.0, 1.0, 1.0),
         );
-        return window;
+
     }
 
     pub fn click_is_inside_button(&mut self, mouse_pos: &Mouse_pos ) -> bool {
@@ -367,11 +367,11 @@ impl Button {
 }
 
 // #[derive( Clone)]
-pub enum TextField<'a> {
-     Text(&'a String),
+pub enum TextField{
+     Text(Box < String  >),
 }
 
-impl<'a> TextField<'a> {
+impl TextField {
     // fn change_field(self) -> &str {
     //     if let TextField::Text(texto) = self {
     //         return TextField::Text(texto.push_str(mut "123"));
@@ -389,7 +389,7 @@ impl<'a> TextField<'a> {
         
     }
 
-    fn print_text(& self, mut window: Window) -> Window {
+    fn print_text(& self, window: &mut Window)  {
         let font = Font::default();
         if let TextField::Text(ref texto) = self  {
             let font = Font::default();
@@ -401,26 +401,30 @@ impl<'a> TextField<'a> {
                 &Point3::new(1.0, 1.0, 1.0),
             );
         }
-        return window;
         
     }
 }
 
 fn main() {
-    let window = Window::new("Kiss3d: rusty calculator");
+    let mut window = Window::new("Kiss3d: rusty calculator");
 
     let mut equation = String::from("-");
     // let mut equation = "-"));
-    let mut equation_field = TextField::Text(&equation);
+    let mut equation_field = TextField::Text(Box::new(equation));
+    equation = String::from("4");
+    
     
 
     let screen_width = (window.width() as f64  ) ;
     let screen_height = (window.height() as f64 ) ;
 
-    // Button
+    // Buttons
     let square_side = 100.0;
     let trans_rect_in_pixels =  (250.0, -200.0);
-    let (mut button_digit, mut window) = Button::new(trans_rect_in_pixels, (square_side, square_side), window);
+
+    // Buttons
+    let trans_rect_in_pixels2 =  (-250.0, -200.0);
+    // let mut button_digit; 
 
     //initialization
     let mut mouse_pos: Mouse_pos = Mouse_pos(0.0,0.0);
@@ -428,11 +432,29 @@ fn main() {
     let mut my = 0.0;
     let mut a_button_has_been_pressed = &false;
 
+    // let (mut button_digit, mut window) = Button::new(trans_rect_in_pixels, (square_side, square_side), window);
+
+    
+    // let (mut button_digit,  mut window) = Button::new(trans_rect_in_pixels, (square_side, square_side), window);
+    let mut button_digit = Button::new(trans_rect_in_pixels, (square_side, square_side), &mut window);
+
+    let mut button_digit2 = Button::new(trans_rect_in_pixels2, (square_side, square_side), &mut window);
+
+    // let (mut buttons,mut window) = {
+    //     let mut v: Vec<Button> = Vec::new();
+    //     for i in (-1..-1) {
+    //         let (mut button_digit, mut window) = Button::new(trans_rect_in_pixels, (square_side, square_side), window);
+    //         v.push(button_digit);
+    //     };
+    //     (v, window)
+    // };
+
     while window.render() {
         // need to call draw_text at every frame because kiss3d erases the text at every frame
-        window = Button::draw_text(&mut button_digit, window);
-        window = TextField::print_text( & equation_field, window);
-
+        // window = Button::draw_text(&mut buttons[0], window);
+        // window = Button::draw_text(&mut button_digit, &mut window);
+        Button::draw_text(&mut button_digit, &mut window);
+        // window = TextField::print_text( & equation_field, window);
 
         for mut event in window.events().iter() {
             match event.value {
@@ -445,11 +467,15 @@ fn main() {
                 WindowEvent::MouseButton(button, Action::Press, _) => {
                     // Button::set_color2(&mut button_digit, Point3::new(0.22,0.33,0.44));
                     if Button::click_is_inside_button(&mut button_digit, &mouse_pos) {
-                        a_button_has_been_pressed = &true;
+                    //     a_button_has_been_pressed = &true;
 
-                        // equation = String::from("4");
+                        // equation = String::from("5");
+                        // equation_field = TextField::Text(Box::new(equation));
+
                         // window = TextField::print_text(&mut equation_field, window);
                     };
+                    if Button::click_is_inside_button(&mut button_digit2, &mouse_pos) {
+                    }
 
                     println!("You pressed the mouse button: {:?}", button);
 
@@ -457,8 +483,9 @@ fn main() {
                 WindowEvent::MouseButton(button, Action::Release, _) => {
                     // rect.set_color(0.15, 0.5, 0.04);
                     Button::set_color2(&mut button_digit, Point3::new(0.15, 0.5, 0.04));
-                    println!("You released the mouse button: {:?}", button);
-                    // println!("{}", q.0)
+                    Button::set_color2(&mut button_digit2, Point3::new(0.15, 0.5, 0.04));
+                    // println!("You released the mouse button: {:?}", button);
+                    // // println!("{}", q.0)
 
                 }
                 WindowEvent::CursorPos(x, y, _) => {
