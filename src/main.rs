@@ -412,10 +412,10 @@ fn draw_stuff(mut buttons: &mut Vec<Button>, text_field: &mut TextField, mut win
 fn main() {
     let mut window = Window::new("Kiss3d: rusty calculator");
 
-    let mut equation = String::from("-");
+    let mut equation = String::from("=");
     // let mut equation = "-"));
     let mut equation_field = TextField::Text(Box::new(equation));
-    equation = String::from("4");
+    // equation = String::from("4");
     
     
 
