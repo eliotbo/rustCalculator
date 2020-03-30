@@ -9,10 +9,10 @@
 // use na::{Translation2, UnitComplex, Isometry2, Vector2};
 
 // #[derive(Debug)]
-// pub struct Mouse_pos(f64, f64);
-// impl Mouse_pos {
+// pub struct MousePos(f64, f64);
+// impl MousePos {
 //     fn x(&self) -> &f64 {
-//         if let Mouse_pos(x,_) = self {
+//         if let MousePos(x,_) = self {
 //             x
 //         } else {
 //             &0.0
@@ -20,7 +20,7 @@
 //     }
 
 //     fn y(&self) -> &f64 {
-//         if let Mouse_pos(_,y) = self {
+//         if let MousePos(_,y) = self {
 //             y
 //         } else {
 //             &0.0
@@ -109,7 +109,7 @@
 //         return window;
 //     }
 
-//     pub fn click_is_inside_button(&mut self, mouse_pos: &Mouse_pos ) -> bool {
+//     pub fn click_is_inside_button(&mut self, mouse_pos: &MousePos ) -> bool {
        
 //         let b =  mouse_pos.x() < &(self.mid_position.x + self.size.0)
 //               && mouse_pos.x() > &(self.mid_position.x - self.size.0)
@@ -180,7 +180,7 @@
 //     let (mut button_digit, mut window) = Button::new(trans_rect_in_pixels, (square_side, square_side), window);
 
 //     //initialization
-//     let mut mouse_pos: Mouse_pos = Mouse_pos(0.0,0.0);
+//     let mut mouse_pos: MousePos = MousePos(0.0,0.0);
 //     let mut mx = 0.0;
 //     let mut my = 0.0;
 //     let mut a_button_has_been_pressed = &false;
@@ -224,7 +224,7 @@
 
 //                 }
 //                 WindowEvent::CursorPos(x, y, _) => {
-//                     mouse_pos = Mouse_pos(x / screen_width, y  / screen_height) ;
+//                     mouse_pos = MousePos(x / screen_width, y  / screen_height) ;
 //                 }
 
 //                 _ => {}
@@ -249,13 +249,13 @@ use kiss3d::window::Window;
 use kiss3d::event::{Action, WindowEvent};
 use kiss3d::scene::PlanarSceneNode;
 use na::{Point2, Point3};
-use na::{Translation2, UnitComplex, Isometry2, Vector2};
+use na::{Translation2, Isometry2, Vector2};
 
 #[derive(Debug)]
-pub struct Mouse_pos(f64, f64);
-impl Mouse_pos {
+pub struct MousePos(f64, f64);
+impl MousePos {
     fn x(&self) -> &f64 {
-        if let Mouse_pos(x,_) = self {
+        if let MousePos(x,_) = self {
             x
         } else {
             &0.0
@@ -263,7 +263,7 @@ impl Mouse_pos {
     }
 
     fn y(&self) -> &f64 {
-        if let Mouse_pos(_,y) = self {
+        if let MousePos(_,y) = self {
             y
         } else {
             &0.0
@@ -286,11 +286,11 @@ pub struct Button {
 
 impl Button {
     pub fn new(label: String , trans_rect_in_pixels: (f64, f64) , rec_size_in_pixels: (f64, f64), window: &mut Window ) -> Button {
-        let screen_width = (window.width() as f64  ) ;
-        let screen_height = (window.height() as f64 ) ;
+        let screen_width =  window.width()  as f64  ;
+        let screen_height = window.height() as f64  ;
         let rec_size =  ( rec_size_in_pixels.0 as f64 / screen_width
-                    , rec_size_in_pixels.1 as f64 / screen_height
-                    );
+                        , rec_size_in_pixels.1 as f64 / screen_height
+                        );
 
 
         let what = 2.0_f64.sqrt(); // why do I even need this
@@ -313,7 +313,7 @@ impl Button {
                                             ,2.0 * (screen_height / 2.0) as f32 
                                                     - trans_rect_in_pixels.1 as f32 *what_again), 0.0);
         let p3 = Point2::new(0.0, 0.0);
-        let p4 = (t * t2 * p3);
+        let p4 = t * t2 * p3;
 
         let mut button = Button {
             mid_position: Point2::new(button_mid.0, button_mid.1),
@@ -352,7 +352,7 @@ impl Button {
 
     }
 
-    pub fn click_is_inside_button(&mut self, mouse_pos: &Mouse_pos ) -> bool {
+    pub fn click_is_inside_button(&mut self, mouse_pos: &MousePos ) -> bool {
        
         let b =  mouse_pos.x() < &(self.mid_position.x + self.size.0)
               && mouse_pos.x() > &(self.mid_position.x - self.size.0)
@@ -383,18 +383,15 @@ impl TextField {
         } else {
             return String::from("")
         }
-        
     }
 
     fn print_text(& self, window: &mut Window)  {
-        let font = Font::default();
         if let TextField::Text(ref texto) = self  {
-            let font = Font::default();
             window.draw_text(
                 &texto,
                 &Point2::new(100.0,100.0),
                 120.0,
-                &font,
+                &Font::default(),
                 &Point3::new(1.0, 1.0, 1.0),
             );
         }
@@ -402,63 +399,41 @@ impl TextField {
     }
 }
 
-fn draw_stuff(mut buttons: &mut Vec<Button>, text_field: &mut TextField, mut window: &mut Window) {
+fn draw_stuff(solve_button: &mut Button, buttons: &mut Vec<Button>, text_field: &mut TextField, mut window: &mut Window) {
     for button in buttons {
         Button::draw_text( button, &mut window);
     }
     TextField::print_text( & text_field, &mut window);
+    Button::draw_text( solve_button, &mut window);
 }
 
 fn main() {
     let mut window = Window::new("Kiss3d: rusty calculator");
 
-    let mut equation = String::from("=");
-    // let mut equation = "-"));
-    let mut equation_field = TextField::Text(Box::new(equation));
-    // equation = String::from("4");
+    let mut equation_field = TextField::Text(Box::new( String::from("=") ));
     
-    
+    let screen_width =  window.width()  as f64 ;
+    let screen_height = window.height() as f64 ;
 
-    let screen_width = (window.width() as f64  ) ;
-    let screen_height = (window.height() as f64 ) ;
+    //initialization
+    let mut mouse_pos: MousePos = MousePos(0.0,0.0);
 
     // Buttons
     let square_side = 100.0;
-    let trans_rect_in_pixels =  (250.0, -200.0);
-
-    // Buttons
-    let trans_rect_in_pixels2 =  (-250.0, -200.0);
-    // let mut button_digit; 
-
-    //initialization
-    let mut mouse_pos: Mouse_pos = Mouse_pos(0.0,0.0);
-    let mut mx = 0.0;
-    let mut my = 0.0;
-    let mut a_button_has_been_pressed = &false;
-
-    // let (mut button_digit, mut window) = Button::new(trans_rect_in_pixels, (square_side, square_side), window);
-
-    
-    // let (mut button_digit,  mut window) = Button::new(trans_rect_in_pixels, (square_side, square_side), window);
-    // let mut button_digit = Button::new(trans_rect_in_pixels, (square_side, square_side), &mut window);
-
-    // let mut button_digit2 = Button::new(trans_rect_in_pixels2, (square_side, square_side), &mut window);
 
     let mut buttons: Vec<Button> = {
         let mut v: Vec<Button> = Vec::new();
         let mut button_digit0;
         let trans_rect_in_pixels_base =  (110.0, 110.0);
-        let mut digits = (1..10);
-        let mut k: usize = 0;
-        for j in (-1..2) {
-            for i in (-1..2) {
-                let mut trans_rect_in_pixels0 = 
-                ( trans_rect_in_pixels_base.0 * (i as f64)
-                , trans_rect_in_pixels_base.1 * (j as f64) );
+        let mut digits = 1..10;
+        for j in -1..2 {
+            for i in -1..2 {
+                let trans_rect_in_pixels0 = 
+                    ( trans_rect_in_pixels_base.0 * (i as f64)
+                    , trans_rect_in_pixels_base.1 * (j as f64) );
                 button_digit0 = Button::new(  String::from( digits.next().unwrap().to_string() )
                                             , trans_rect_in_pixels0
                                             , (square_side, square_side), &mut window);
-                k += 1;
                 v.push(button_digit0);
             };
         };
@@ -466,23 +441,17 @@ fn main() {
     };
 
     buttons.push( Button::new(String::from("0"), (-110.0, -220.0), (square_side, square_side), &mut window) );
+    buttons.push( Button::new(String::from("+"), (-220.0, 110.0), (square_side, square_side), &mut window) );
+    buttons.push( Button::new(String::from("-"), (-220.0, 0.0), (square_side, square_side), &mut window) );
+    buttons.push( Button::new(String::from("x"), (-220.0, -110.0), (square_side, square_side), &mut window) );
+    buttons.push( Button::new(String::from("/"), (-220.0, -220.0), (square_side, square_side), &mut window) );
 
-   
+    let mut solve_button = Button::new(String::from("="), (55.0, -220.0), (210.0, 100.0), &mut window) ;
 
-    equation = String::from("5");
     while window.render() {
-        // need to call draw_text at every frame because kiss3d erases the text at every frame
-        // window = Button::draw_text(&mut buttons[0], window);
-        // window = Button::draw_text(&mut button_digit, &mut window);
-        // Button::draw_text(&mut button_digit, &mut window);
-        // equation = String::from("5");
-        // equation_field = TextField::Text(Box::new(equation));
-        // TextField::print_text( & equation_field, &mut window);
+        draw_stuff(&mut solve_button, &mut buttons, &mut equation_field, &mut window);
 
-        draw_stuff(&mut buttons, &mut equation_field, &mut window);
-        
-
-        for mut event in window.events().iter() {
+        for event in window.events().iter() {
             match event.value {
                 WindowEvent::Key(button, Action::Press, _) => {
                     println!("You pressed the mouse button: {:?}", button);
@@ -490,43 +459,27 @@ fn main() {
                 WindowEvent::Key(button, Action::Release, _) => {
                     println!("You pressed the mouse button: {:?}", button);
                 }
-                WindowEvent::MouseButton(button, Action::Press, _) => {
-                    // Button::set_color2(&mut button_digit, Point3::new(0.22,0.33,0.44));
+
+                WindowEvent::MouseButton(_button, Action::Press, _) => {
                     
 
-                    for mut button in &mut buttons {
-                        if Button::click_is_inside_button( button, &mouse_pos) {
-                            equation_field = TextField::change_field( &mut equation_field, &button.label );
+                    for b in &mut buttons {
+                        if Button::click_is_inside_button( b, &mouse_pos) {
+                            equation_field = TextField::change_field( &mut equation_field, &b.label );
                         };
 
                     }
-                        // let mut tt = String::from("5");
-                        // equation_field = TextField::Text(Box::new(equation+&tt));
-                    //     a_button_has_been_pressed = &true;
-
-                        // equation = String::from("5");
-                        // equation_field = TextField::Text(Box::new(equation));
-
-                        // window = TextField::print_text(&mut equation_field, window);
-                    
-                    // if Button::click_is_inside_button(&mut button_digit2, &mouse_pos) {
-                    // }
-
-                    println!("You pressed the mouse button: {:?}", button);
 
                 }
-                WindowEvent::MouseButton(button, Action::Release, _) => {
+                WindowEvent::MouseButton(_button, Action::Release, _) => {
                     // rect.set_color(0.15, 0.5, 0.04);
-                    for mut button in &mut buttons {
-                        Button::set_color2( button, Point3::new(0.15, 0.5, 0.04));
+                    for b in &mut buttons {
+                        Button::set_color2( b, Point3::new(0.15, 0.5, 0.04));
                     }
-                    // Button::set_color2(&mut button_digit2, Point3::new(0.15, 0.5, 0.04));
-                    // println!("You released the mouse button: {:?}", button);
-                    // // println!("{}", q.0)
 
                 }
                 WindowEvent::CursorPos(x, y, _) => {
-                    mouse_pos = Mouse_pos(x / screen_width, y  / screen_height) ;
+                    mouse_pos = MousePos(x / screen_width, y  / screen_height) ;
                 }
 
                 _ => {}
